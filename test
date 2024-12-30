@@ -45,7 +45,7 @@ local Section = SpinTab:CreateSection("Features")
 local Divider = SpinTab:CreateDivider()
 
 MainTab:CreateToggle({
-    Name = "Enable Instant Kill",
+    Name = "Instant Kill",
     CurrentValue = false, -- Default state of the toggle
     Flag = "InstaKill", -- A flag to save its state in the config
     Callback = function(Value)
@@ -77,3 +77,62 @@ MainTab:CreateToggle({
     end
 })
 
+local Button = MainTab:CreateButton({
+    Name = "Op Quest",
+Callback = Function()
+   if Toggle.Value then
+        getgenv().AutoFarm1 = true
+        local processing = false
+
+        game:GetService("RunService").Heartbeat:Connect(function()
+            if getgenv().AutoFarm1 and not processing then
+                processing = true
+
+                local localPlayer = game.Players.LocalPlayer
+                local ohTable1 = {
+                    ["type"] = "Kill",
+                    ["set"] = "Yuki Fortress Set",
+                    ["rewards"] = {
+                        ["essence"] = 40,
+                        ["chestMeter"] = 79,
+                        ["exp"] = 8850000,
+                        ["cash"] = 51000
+                    },
+                    ["rewardsText"] = "8.85 Mi EXP | Universe Hub",
+                    ["difficulty"] = 3,
+                    ["title"] = "Defeat",
+                    ["level"] = 430,
+                    ["grade"] = localPlayer.ReplicatedData.grade.Value,
+                    ["subtitle"] = "a Curse User"
+                }
+
+                pcall(function()
+                    game:GetService("ReplicatedStorage").Remotes.Server.Data.TakeQuest:InvokeServer(ohTable1)
+                end)
+
+                task.wait(1)
+
+                local questData = localPlayer:FindFirstChild("ReplicatedTempData") and localPlayer.ReplicatedTempData:FindFirstChild("quest")
+                if not questData then
+                    pcall(function()
+                        game:GetService("ReplicatedStorage").Remotes.Server.Data.TakeQuest:InvokeServer(ohTable1)
+                    end)
+                end
+
+                local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+                local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+                local questMarker = localPlayer.PlayerGui:WaitForChild("QuestMarker")
+                local adornee = questMarker.Adornee
+
+                if adornee and adornee:IsA("BasePart") then
+                    humanoidRootPart.CFrame = adornee.CFrame
+                end
+
+                task.wait(getgenv().WaitTime)
+                processing = false
+            end
+        end)
+    else
+        getgenv().AutoFarm1 = false
+    end
+end)
